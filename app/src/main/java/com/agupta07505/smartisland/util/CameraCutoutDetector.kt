@@ -12,7 +12,10 @@ import android.graphics.Rect
 import android.os.Build
 import android.view.DisplayCutout
 import android.view.WindowManager
+import androidx.annotation.RequiresApi
 import com.agupta07505.smartisland.data.SmartIslandSettings
+import com.agupta07505.smartisland.model.HyperHole
+import com.agupta07505.smartisland.model.HyperIslandGeometry
 
 data class DetectedCutoutInfo(
     val xOffsetDp: Float,
@@ -106,6 +109,48 @@ object CameraCutoutDetector {
         screenWidthPx = screenWidthPx,
         density = density
     )
+
+    /**
+     * The punch-hole itself, without the padding [calculateCutoutOffset] adds for the classic pill.
+     * WindowInsets (API 30+) is preferred so a center hole such as Pixel 9 is read from the current
+     * display metrics. Manual cutout settings are applied by the caller, not here.
+     */
+    fun rawHole(context: Context): HyperHole {
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
+            ?: return HyperIslandGeometry.fallbackHole()
+        val density = context.resources.displayMetrics.density
+        if (density <= 0f) return HyperIslandGeometry.fallbackHole()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val metrics = runCatching { windowManager.currentWindowMetrics }.getOrNull()
+            val widthPx = metrics?.bounds?.width() ?: 0
+            val fromInsets = metrics?.windowInsets?.displayCutout?.let { topCutoutRect(it) }
+            if (fromInsets != null && widthPx > 0) {
+                return HyperIslandGeometry.holeFromPixels(
+                    fromInsets.left, fromInsets.top, fromInsets.right, fromInsets.bottom, widthPx, density
+                )
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val display = runCatching { windowManager.defaultDisplay }.getOrNull()
+            val widthPx = context.resources.displayMetrics.widthPixels
+            val rect = runCatching { display?.cutout }.getOrNull()?.let { topCutoutRect(it) }
+            if (rect != null && widthPx > 0) {
+                return HyperIslandGeometry.holeFromPixels(
+                    rect.left, rect.top, rect.right, rect.bottom, widthPx, density
+                )
+            }
+        }
+        return HyperIslandGeometry.fallbackHole()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun topCutoutRect(cutout: DisplayCutout): Rect? {
+        val rects = cutout.boundingRects
+        if (rects.isEmpty()) return null
+        return rects.filter { it.width() > 0 && it.height() > 0 }.minByOrNull { it.top }
+    }
 
     fun detect(context: Context): DetectedCutoutInfo {
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
