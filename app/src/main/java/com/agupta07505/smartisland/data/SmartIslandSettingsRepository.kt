@@ -124,6 +124,7 @@ class SmartIslandSettingsRepository(private val context: Context) {
         val ExpandedTheme = stringPreferencesKey("expanded_theme")
         val IslandFont = stringPreferencesKey("island_font")
         val EnableNotchMode = booleanPreferencesKey("enable_notch_mode")
+        val HyperOsStyle = booleanPreferencesKey("hyper_os_style")
         val CameraCutoutManual = booleanPreferencesKey("camera_cutout_manual")
         val CameraCutoutX = floatPreferencesKey("camera_cutout_x")
         val CameraCutoutY = floatPreferencesKey("camera_cutout_y")
@@ -432,6 +433,7 @@ class SmartIslandSettingsRepository(private val context: Context) {
                 expandedTheme = prefs[Keys.ExpandedTheme]?.takeIf { it in SmartIslandSettings.VALID_EXPANDED_THEMES } ?: defaults.expandedTheme,
                 islandFont = prefs[Keys.IslandFont]?.takeIf { SmartIslandSettings.isValidFont(it) } ?: defaults.islandFont,
                 enableNotchMode = prefs[Keys.EnableNotchMode] ?: defaults.enableNotchMode,
+                hyperOsStyle = prefs[Keys.HyperOsStyle] ?: defaults.hyperOsStyle,
                 cameraCutoutManual = prefs[Keys.CameraCutoutManual] ?: defaults.cameraCutoutManual,
                 cameraCutoutX = validDimension(prefs[Keys.CameraCutoutX], defaults.cameraCutoutX, SmartIslandSettings.MIN_X_OFFSET, SmartIslandSettings.MAX_X_OFFSET),
                 cameraCutoutY = validDimension(prefs[Keys.CameraCutoutY], defaults.cameraCutoutY, SmartIslandSettings.MIN_Y_OFFSET, SmartIslandSettings.MAX_Y_OFFSET),
@@ -1271,6 +1273,10 @@ class SmartIslandSettingsRepository(private val context: Context) {
     suspend fun setEnableNotchMode(value: Boolean) = editSafely {
         it[Keys.EnableNotchMode] = value
     }
+
+    suspend fun setHyperOsStyle(value: Boolean) = editSafely {
+        it[Keys.HyperOsStyle] = value
+    }
     suspend fun setCameraCutoutManual(value: Boolean) = editSafely {
         it[Keys.CameraCutoutManual] = value
     }
@@ -1515,6 +1521,7 @@ class SmartIslandSettingsRepository(private val context: Context) {
         prefs[Keys.ExpandedTheme] = if (settings.expandedTheme in SmartIslandSettings.VALID_EXPANDED_THEMES) settings.expandedTheme else SmartIslandSettings.Default.expandedTheme
         prefs[Keys.IslandFont] = settings.islandFont
         prefs[Keys.EnableNotchMode] = settings.enableNotchMode
+        prefs[Keys.HyperOsStyle] = settings.hyperOsStyle
         prefs[Keys.CameraCutoutManual] = settings.cameraCutoutManual
         prefs[Keys.CameraCutoutX] = validDimension(settings.cameraCutoutX, SmartIslandSettings.Default.cameraCutoutX, SmartIslandSettings.MIN_X_OFFSET, SmartIslandSettings.MAX_X_OFFSET)
         prefs[Keys.CameraCutoutY] = validDimension(settings.cameraCutoutY, SmartIslandSettings.Default.cameraCutoutY, SmartIslandSettings.MIN_Y_OFFSET, SmartIslandSettings.MAX_Y_OFFSET)
