@@ -1328,6 +1328,30 @@ class SmartIslandOverlayService : AccessibilityService() {
                         setTouchableInsetsMethod.invoke(insets, TOUCHABLE_INSETS_REGION)
                         val region = touchableRegionField.get(insets) as android.graphics.Region
                         region.setEmpty()
+                    } else if (settingsVal.hyperOsStyle) {
+                        val card = com.agupta07505.smartisland.ui.hyper.HyperIslandTouch.cardOpen.value
+                        val surface = com.agupta07505.smartisland.ui.hyper.HyperIslandTouch.bounds.value
+                        val catchOutside = card && !viewModel.autoExpanded.value
+                        if (catchOutside || viewModel.isInputActive.value) {
+                            setTouchableInsetsMethod.invoke(insets, TOUCHABLE_INSETS_FRAME)
+                        } else if (surface != null) {
+                            setTouchableInsetsMethod.invoke(insets, TOUCHABLE_INSETS_REGION)
+                            val pad = (12 * resources.displayMetrics.density).toInt()
+                            val region = touchableRegionField.get(insets) as android.graphics.Region
+                            region.set(
+                                (surface.left - pad).coerceAtLeast(0),
+                                (surface.top - pad).coerceAtLeast(0),
+                                surface.right + pad,
+                                surface.bottom + pad
+                            )
+                        } else {
+                            setTouchableInsetsMethod.invoke(insets, TOUCHABLE_INSETS_REGION)
+                            val density = resources.displayMetrics.density
+                            val screenWidth = resources.displayMetrics.widthPixels
+                            val band = (96 * density).toInt()
+                            val region = touchableRegionField.get(insets) as android.graphics.Region
+                            region.set((screenWidth - band) / 2, 0, (screenWidth + band) / 2, band)
+                        }
                     } else if (isExpanded) {
                         val surface = viewModel.expandedSurfaceBounds.value
                         if (viewModel.autoExpanded.value && surface != null && !viewModel.isInputActive.value) {
@@ -1606,7 +1630,8 @@ class SmartIslandOverlayService : AccessibilityService() {
         val preGrown = isTouchableRegionSupported.value && visibleCount > 0 && !isHidden && !isStatic
         // the square scan is taller than the collapsed window
         val faceIdState = com.agupta07505.smartisland.util.FaceIdController.state.value
-        val fullWindow = expanded || widgetWindowOpen ||
+        val hyper = settings.hyperOsStyle
+        val fullWindow = expanded || widgetWindowOpen || hyper ||
             (faceIdState.active && faceIdState.style != com.agupta07505.smartisland.util.FaceIdController.Style.Cutout)
         val h = if (fullWindow || preGrown) {
             WindowManager.LayoutParams.MATCH_PARENT
@@ -1637,7 +1662,7 @@ class SmartIslandOverlayService : AccessibilityService() {
             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
 
         val currentX = if (fullWindow || isTouchableRegionSupported.value) 0 else windowXPx
-        val currentY = if (settings.enableNotchMode || isLandscape) 0 else settings.yOffset.dpToPx()
+        val currentY = if (hyper || settings.enableNotchMode || isLandscape) 0 else settings.yOffset.dpToPx()
         val currentSoftInputMode = if (isInput) {
             WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE or
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE

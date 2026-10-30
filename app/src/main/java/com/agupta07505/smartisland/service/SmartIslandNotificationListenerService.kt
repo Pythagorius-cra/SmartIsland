@@ -978,12 +978,22 @@ class SmartIslandNotificationListenerService : NotificationListenerService() {
         }
 
         val extras = notification.extras
-        val mode = notification.toIslandMode(
+        val detectedMode = notification.toIslandMode(
             sbn,
             settings.liveActivitiesEnabled,
             settings.navigationEnabled,
             settings.deviceType
         )
+        val mode = if (settings.hyperOsStyle) {
+            val liveTitle = extras.getCharSequence(android.app.Notification.EXTRA_TITLE)?.toString().orEmpty()
+            val liveText = extras.getCharSequence(android.app.Notification.EXTRA_TEXT)?.toString().orEmpty()
+            val progressStyle = extras.getString(android.app.Notification.EXTRA_TEMPLATE)?.endsWith("ProgressStyle") == true
+            com.agupta07505.smartisland.model.HyperLiveUpdate.refine(
+                detectedMode, progressStyle, liveTitle, liveText, notification.category
+            )
+        } else {
+            detectedMode
+        }
         android.util.Log.d(TAG, "handleNotificationPosted: mode=$mode key=${sbn.key} title=${extras.getCharSequence(Notification.EXTRA_TITLE)}")
 
         // Quiet imports of what is already in the shade are not new alerts, so they neither count

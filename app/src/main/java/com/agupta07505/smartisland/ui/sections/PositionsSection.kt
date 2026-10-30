@@ -61,6 +61,7 @@ import com.agupta07505.smartisland.data.SmartIslandSettingsRepository
 import com.agupta07505.smartisland.ui.SliderSettingItem
 import com.agupta07505.smartisland.ui.components.CollapsibleCard
 import com.agupta07505.smartisland.ui.bounceClick
+import com.agupta07505.smartisland.ui.search.searchAnchor
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import androidx.compose.runtime.getValue
@@ -104,6 +105,43 @@ fun PositionsSection(
             .animateContentSize(),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
+        Card(
+            modifier = Modifier.fillMaxWidth().searchAnchor("layout.hyper_os_style"),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
+                    Text(
+                        text = stringResource(R.string.hyper_os_style_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(R.string.hyper_os_style_summary),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = stringResource(R.string.hyper_os_style_toggle_desc),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 6.dp)
+                    )
+                }
+                Switch(
+                    checked = settings.hyperOsStyle,
+                    onCheckedChange = { checked -> scope.launch { repository.setHyperOsStyle(checked) } }
+                )
+            }
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()

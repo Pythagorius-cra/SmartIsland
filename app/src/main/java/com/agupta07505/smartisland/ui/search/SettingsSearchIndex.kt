@@ -144,6 +144,12 @@ internal fun buildSettingsSearchIndex(str: (Int) -> String): List<SettingsSearch
         layout, Icons.Rounded.Tune, str(R.string.notch_mode_card_desc), listOf("notch", "iphone", "cutout", "pill")
     )
     add(
+        "layout.hyper_os_style", str(R.string.hyper_os_style_title), SearchTarget.Tab(StudioTab.Position, false),
+        layout, Icons.Rounded.Tune, str(R.string.hyper_os_style_summary),
+        listOf("hyperos", "hyper", "xiaomi", "pixel", "pill", "liquid", "island"),
+        "layout.hyper_os_style"
+    )
+    add(
         "layout.circle_position", str(R.string.circle_position_card_title), SearchTarget.Tab(StudioTab.Position, false),
         layout, Icons.Rounded.Tune, str(R.string.circle_position_card_desc),
         listOf("secondary", "companion", "left", "right", "cutout")

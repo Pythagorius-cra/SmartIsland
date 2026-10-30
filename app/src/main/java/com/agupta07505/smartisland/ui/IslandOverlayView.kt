@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.agupta07505.smartisland.data.LaunchableApp
 import com.agupta07505.smartisland.data.SmartIslandSettings
 import com.agupta07505.smartisland.model.IslandMode
+import com.agupta07505.smartisland.ui.hyper.HyperIslandHost
 import com.agupta07505.smartisland.model.IslandNotification
 import com.agupta07505.smartisland.model.SwipeAction
 import com.agupta07505.smartisland.util.HapticKind
@@ -110,6 +111,22 @@ fun IslandOverlayView(
     onWidgetIslandShownChange: (Boolean) -> Unit = {},
     widgetIslandSnap: Int = 0
 ) {
+    if (settings.hyperOsStyle) {
+        HyperIslandHost(
+            settings = settings,
+            expanded = expanded,
+            notifications = notifications,
+            selectedIndex = selectedIndex,
+            onPageSelected = onPageSelected,
+            onOpenNotification = onOpenNotification,
+            onToggleExpanded = onToggleExpanded,
+            onDismissNotification = onDismissNotification,
+            onUserEngaged = onUserEngaged,
+            onReplyStateChanged = onReplyStateChanged,
+            modifier = modifier
+        )
+        return
+    }
     val safeIndex = selectedIndex.coerceIn(0, (notifications.size - 1).coerceAtLeast(0))
     // Gesture code (pointerInput(Unit) never restarts its coroutine) reads these instead of capturing the parameters.
     val cb = rememberIslandCallbacks(
