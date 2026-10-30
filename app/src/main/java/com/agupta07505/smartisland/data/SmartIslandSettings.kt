@@ -135,6 +135,12 @@ data class SmartIslandSettings(
     /** Font for bold and heavier text; empty = the island font. */
     val fontMixMedium: String = "",
     val enableNotchMode: Boolean = false,
+    /**
+     * HyperOS-style island: liquid spring morph between a collapsed pill, a compact capsule (icon and
+     * status on either side of the camera), and a full card. Off keeps the original Smart Island look.
+     * Tuned for a center punch-hole (Pixel 9). The manual camera cutout still overrides auto-fit.
+     */
+    val hyperOsStyle: Boolean = false,
     /** Manual camera cutout area, for phones where the hardware detection fails. Used by the expanded island's close target. */
     val cameraCutoutManual: Boolean = false,
     /** Manual cutout centre, dp from the screen centre. */
@@ -527,6 +533,7 @@ data class SmartIslandSettings(
         settingsObj.put("expandedTheme", expandedTheme)
         settingsObj.put("islandFont", islandFont)
         settingsObj.put("enableNotchMode", enableNotchMode)
+        settingsObj.put("hyperOsStyle", hyperOsStyle)
         settingsObj.put("cameraCutoutManual", cameraCutoutManual)
         settingsObj.put("cameraCutoutX", cameraCutoutX.toDouble())
         settingsObj.put("cameraCutoutY", cameraCutoutY.toDouble())
@@ -967,6 +974,7 @@ data class SmartIslandSettings(
                 expandedTheme = obj.optString("expandedTheme", defaults.expandedTheme).takeIf { it in VALID_EXPANDED_THEMES } ?: defaults.expandedTheme,
                 islandFont = obj.optString("islandFont", defaults.islandFont).takeIf { isValidFont(it) } ?: defaults.islandFont,
                 enableNotchMode = obj.optBoolean("enableNotchMode", defaults.enableNotchMode),
+                hyperOsStyle = obj.optBoolean("hyperOsStyle", defaults.hyperOsStyle),
                 cameraCutoutManual = obj.optBoolean("cameraCutoutManual", defaults.cameraCutoutManual),
                 cameraCutoutX = safeFloat("cameraCutoutX", defaults.cameraCutoutX, MIN_X_OFFSET, MAX_X_OFFSET),
                 cameraCutoutY = safeFloat("cameraCutoutY", defaults.cameraCutoutY, MIN_Y_OFFSET, MAX_Y_OFFSET),
